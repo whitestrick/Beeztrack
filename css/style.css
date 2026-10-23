@@ -1,1 +1,110 @@
 /* Beeztrack styles. Design tokens and base styles are added in issue #2. */
+/* ==========================================================
+   Beeztrack styles
+   1. Design tokens (CSS variables)
+   2. Reset
+   3. Base styles
+   4. Utilities
+   ========================================================== */
+
+/* ---------- 1. DESIGN TOKENS ----------
+   
+   Change a value here and the whole site updates. */
+:root {
+  /* The 3 brand colors */
+  --color-amber: #f2a413; /* buttons, highlights, low-stock stripe */
+  --color-ink: #25231f;   /* top bar, headings, text */
+  --color-red: #c8442f;   /* out of stock and delete ONLY */
+
+  /* Neutrals */
+  --color-paper: #faf6ec; /* page background */
+  --color-white: #ffffff; /* cards, table, dialogs */
+  --color-line: #e4dcc8;  /* borders and dividers */
+  --color-stone: #6b665c; /* secondary text */
+
+  /* Light tints of amber and red, used for low/out row backgrounds */
+  --color-amber-tint: #fdf1d6;
+  --color-red-tint: #f8e3df;
+
+  /* Spacing scale: 
+     1rem = 16px by default, so 0.5rem = 8px. */
+  --space-1: 0.5rem; /*  8px */
+  --space-2: 1rem;   /* 16px */
+  --space-3: 1.5rem; /* 24px */
+  --space-4: 2rem;   /* 32px */
+
+  /* Fonts (the second name is a fallback if Google Fonts fails to load) */
+  --font-heading: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+
+  /* Other shared values */
+  --radius: 0.5rem;
+}
+
+/* ---------- 2. RESET ----------
+    removes browser defaults so every browser starts from the same place. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* padding and border stay INSIDE the set width */
+}
+
+body,
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+img {
+  max-width: 100%; /* images never overflow their container */
+  display: block;
+}
+
+/* force form controls to inferit font decorations*/
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* ---------- 3. BASE STYLES ---------- */
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* style focus clearly for keyboard users to see where they are */
+:focus-visible {
+  outline: 3px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+
+.text-muted {
+  color: var(--color-stone);
+}
+
+/* Hides something visually but keeps it for screen readers.
+   Useful  for labels like the search box. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
