@@ -1,0 +1,27 @@
+{
+  "name": "beeztrack",
+  "version": "1.0.0",
+  "description": "A simple inventory management system for small business owners. It is a single-page application (SPA) built with HTML, CSS and vanilla JavaScript, using JSON Server as its backend.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "json-server --watch db.json --port 3000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/whitestrick/Beeztrack.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/whitestrick/Beeztrack/issues"
+  },
+  "homepage": "https://github.com/whitestrick/Beeztrack#readme",
+  "dependencies": {
+    "json-server": "0.17.4"
+  }
+}
