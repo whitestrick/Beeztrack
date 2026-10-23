@@ -1,0 +1,54 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Bluetooth Speaker",
+      "category": "Electronics",
+      "price": 45,
+      "quantity": 40,
+      "minStock": 5,
+      "image": ""
+    },
+    {
+      "id": 2,
+      "name": "USB-C Cable",
+      "category": "Accessories",
+      "price": 12,
+      "quantity": 3,
+      "minStock": 5,
+      "image": ""
+    },
+    {
+      "id": 3,
+      "name": "Wireless Mouse",
+      "category": "Accessories",
+      "price": 25,
+      "quantity": 0,
+      "minStock": 3,
+      "image": ""
+    },
+    {
+      "id": 4,
+      "name": "Laptop Stand",
+      "category": "Office",
+      "price": 35,
+      "quantity": 15,
+      "minStock": 5,
+      "image": ""
+    },
+    {
+      "id": 5,
+      "name": "Notebook Pack",
+      "category": "Office",
+      "price": 8.5,
+      "quantity": 5,
+      "minStock": 5,
+      "image": ""
+    },
+    {
+      "name": "Renamed Item",
+      "id": 6,
+      "quantity": 9
+    }
+  ]
+}
