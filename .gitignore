@@ -1,0 +1,9 @@
+# Dependencies 
+node_modules/
+
+# Test coverage reports 
+coverage/
+
+# Operating system junk files
+.DS_Store
+Thumbs.db
