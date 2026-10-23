@@ -13,9 +13,215 @@
     />
     <link rel="stylesheet" href="css/style.css" />
   </head>
-  <body>
-    <h1>Beeztrack</h1>
-    <p>Inventory management for small business owners. Coming soon.</p>
-    <p class="text-muted">This is secondary text to see the css.</p>
+   <body>
+    <!-- ============ TOP BAR ============ -->
+    <header class="top-bar">
+      <div class="brand">
+        <span class="logo-mark" aria-hidden="true">&#11042;</span>
+        <h1>Beeztrack</h1>
+      </div>
+      <button type="button" id="import-btn" class="btn btn-primary">
+        Import sample products
+      </button>
+    </header>
+
+    <!-- Feedback messages ("Product saved", errors) appear here.
+         aria-live makes screen readers announce new messages. -->
+    <div id="message-area" class="message-area" role="status" aria-live="polite"></div>
+
+    <main class="container">
+      <!-- ============ SUMMARY CARDS ============ -->
+      <section class="summary" aria-labelledby="summary-heading">
+        <h2 id="summary-heading" class="visually-hidden">Inventory summary</h2>
+
+        <div class="card">
+          <p class="card-label">Total Products</p>
+          <p class="card-value" id="total-products">0</p>
+        </div>
+        <div class="card">
+          <p class="card-label">Inventory Value</p>
+          <p class="card-value" id="inventory-value">$0.00</p>
+        </div>
+        <div class="card">
+          <p class="card-label">Low Stock</p>
+          <p class="card-value card-value-low" id="low-stock-count">0</p>
+        </div>
+        <div class="card">
+          <p class="card-label">Out of Stock</p>
+          <p class="card-value card-value-out" id="out-stock-count">0</p>
+        </div>
+      </section>
+
+      <!-- ============ TOOLBAR ============ -->
+      <section class="toolbar" aria-labelledby="toolbar-heading">
+        <h2 id="toolbar-heading" class="visually-hidden">Search and filter products</h2>
+
+        <div class="toolbar-field toolbar-search">
+          <label for="search-input" class="visually-hidden">Search products by name</label>
+          <input type="search" id="search-input" placeholder="Search by name..." />
+        </div>
+
+        <div class="toolbar-field">
+          <label for="category-filter" class="visually-hidden">Filter by category</label>
+          <select id="category-filter">
+            <option value="">All categories</option>
+          </select>
+        </div>
+
+        <div class="toolbar-field">
+          <label for="status-filter" class="visually-hidden">Filter by stock status</label>
+          <select id="status-filter">
+            <option value="">All stock</option>
+            <option value="ok">In stock</option>
+            <option value="low">Low stock</option>
+            <option value="out">Out of stock</option>
+          </select>
+        </div>
+
+        <button type="button" id="add-product-btn" class="btn btn-primary">
+          + Add Product
+        </button>
+      </section>
+
+      <!-- ============ PRODUCTS ============ -->
+      <section class="products" aria-labelledby="products-heading">
+        <h2 id="products-heading" class="visually-hidden">Products</h2>
+
+        <!-- The three states.incorporate "hidden" keeps them invisible until JS shows one. -->
+        <div id="loading-state" class="state" hidden>
+          <p>Loading products...</p>
+        </div>
+
+        <div id="error-state" class="state state-error" hidden>
+          <p>Something went wrong. We couldn't load your products.</p>
+          <button type="button" id="error-retry-btn" class="btn btn-danger">Try Again</button>
+        </div>
+
+        <div id="empty-state" class="state" hidden>
+          <p>No products found.</p>
+          <button type="button" id="empty-add-btn" class="btn btn-primary">+ Add Product</button>
+        </div>
+
+        <div class="table-wrapper" id="table-wrapper">
+          <table class="product-table">
+            <caption class="visually-hidden">List of products in your inventory</caption>
+            <thead>
+              <tr>
+                <th scope="col">Image</th>
+                <th scope="col">Name</th>
+                <th scope="col">Category</th>
+                <th scope="col">Price</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Min Stock</th>
+                <th scope="col">Status</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <!-- JavaScript fills this bit -->
+            <tbody id="product-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p class="text-muted">Beeztrack &middot; A simple inventory manager for small businesses</p>
+    </footer>
+
+    <!-- ============ ADD / EDIT DIALOG ============ -->
+    <dialog id="product-dialog" aria-labelledby="product-dialog-title">
+      <!--  used the novalidate to turn off the browser's own pop-up errors so OUR
+           validation messages (validation.js) are the ones users see. -->
+      <form id="product-form" novalidate>
+        <h2 id="product-dialog-title">Add Product</h2>
+
+        <!-- Empty when adding, holds the product id when editing -->
+        <input type="hidden" id="product-id" />
+
+        <div class="form-field">
+          <label for="product-name">Product name *</label>
+          <input type="text" id="product-name" name="name" aria-describedby="name-error" />
+          <p class="field-error" id="name-error"></p>
+        </div>
+
+        <div class="form-field">
+          <label for="product-category">Category *</label>
+          <input
+            type="text"
+            id="product-category"
+            name="category"
+            list="category-list"
+            aria-describedby="category-error"
+          />
+          <!-- Suggestions built from existing categories js role -->
+          <datalist id="category-list"></datalist>
+          <p class="field-error" id="category-error"></p>
+        </div>
+
+        <div class="form-field">
+          <label for="product-price">Price *</label>
+          <input
+            type="number"
+            id="product-price"
+            name="price"
+            min="0"
+            step="0.01"
+            aria-describedby="price-error"
+          />
+          <p class="field-error" id="price-error"></p>
+        </div>
+
+        <div class="form-field">
+          <label for="product-quantity">Quantity *</label>
+          <input
+            type="number"
+            id="product-quantity"
+            name="quantity"
+            min="0"
+            step="1"
+            aria-describedby="quantity-error"
+          />
+          <p class="field-error" id="quantity-error"></p>
+        </div>
+
+        <div class="form-field">
+          <label for="product-min-stock">Min stock *</label>
+          <input
+            type="number"
+            id="product-min-stock"
+            name="minStock"
+            min="0"
+            step="1"
+            aria-describedby="min-stock-error"
+          />
+          <p class="field-error" id="min-stock-error"></p>
+        </div>
+
+        <div class="form-field">
+          <label for="product-image">Image URL (optional)</label>
+          <input type="url" id="product-image" name="image" placeholder="https://..." />
+        </div>
+
+        <div class="dialog-actions">
+          <button type="button" id="product-cancel-btn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" id="product-save-btn" class="btn btn-primary">Save Product</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!--  DELETE CONFIRMATION DIALOG  -->
+    <dialog id="delete-dialog" aria-labelledby="delete-dialog-title">
+      <h2 id="delete-dialog-title">Delete Product</h2>
+      <p>
+        Are you sure you want to delete <strong id="delete-product-name">this product</strong>?
+        This action cannot be undone.
+      </p>
+      <div class="dialog-actions">
+        <button type="button" id="delete-cancel-btn" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="delete-confirm-btn" class="btn btn-danger">Delete</button>
+      </div>
+    </dialog>
+
+ 
   </body>
 </html>
