@@ -26,6 +26,13 @@
   --color-amber-tint: #fdf1d6;
   --color-red-tint: #f8e3df;
 
+  /* Darker shades for hover states (same colors, just deeper) */
+  --color-amber-dark: #d98f0a;
+  --color-red-dark: #a8361f;
+
+  /* Dim layer behind open dialogs */
+  --color-overlay: rgba(37, 35, 31, 0.55);
+
   /* Spacing scale: 
      1rem = 16px by default, so 0.5rem = 8px. */
   --space-1: 0.5rem; /*  8px */
@@ -86,6 +93,11 @@ h3 {
   font-weight: 700;
   line-height: 1.2;
 }
+/* Our .state boxes use display:flex, which would override the HTML "hidden"
+   attribute and keep them visible. This line makes "hidden" always win. */
+[hidden] {
+  display: none !important;
+}
 
 /* style focus clearly for keyboard users to see where they are */
 :focus-visible {
@@ -107,4 +119,459 @@ h3 {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* ==========================================================
+   5. LAYOUT
+   ========================================================== */
+
+.container {
+  max-width: 75rem;               /* 1200px: stops the page getting too wide */
+  margin: 0 auto;                 /* auto left/right margins center it */
+  padding: var(--space-3) var(--space-2) var(--space-4);
+}
+
+/* Space between the stacked sections (summary, toolbar, products) */
+.container > section + section {
+  margin-top: var(--space-3);
+}
+
+/* ---------- Top bar ---------- */
+.top-bar {
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  display: flex;                          /* flexbox: items in a row */
+  justify-content: space-between;         /* brand left, button right */
+  align-items: center;                    /* vertically centered */
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.top-bar h1 {
+  font-size: 1.5rem;
+}
+
+.logo-mark {
+  color: var(--color-amber);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+/* The dark outline from the base styles would be invisible on a dark bar,
+   so inside the top bar the focus outline is light. */
+.top-bar :focus-visible {
+  outline-color: var(--color-paper);
+}
+
+/* ==========================================================
+   6. FEEDBACK MESSAGES (filled by JS in issue #10)
+   ========================================================== */
+
+.message-area {
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 0 var(--space-2);
+}
+
+/* Only add space when there is actually a message inside */
+.message-area:not(:empty) {
+  padding-top: var(--space-2);
+}
+
+.message {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-line);
+  border-left-width: 6px;
+  border-radius: var(--radius);
+  padding: var(--space-1) var(--space-2);
+  font-weight: 500;
+}
+
+/* Success = ink text + amber stripe + a check mark  */
+.message-success {
+  border-left-color: var(--color-amber);
+}
+.message-success::before {
+  content: "\2713\00a0";   /* a check mark and a space */
+  font-weight: 700;
+}
+
+.message-error {
+  background-color: var(--color-red-tint);
+  border-left-color: var(--color-red);
+}
+.message-error::before {
+  content: "!\00a0";
+  font-weight: 700;
+  color: var(--color-red);
+}
+
+/* ==========================================================
+   7. SUMMARY CARDS
+   ========================================================== */
+
+.summary {
+  display: grid;
+  /* "auto-fit + minmax": as many columns as fit, each at least 12rem wide,
+     sharing the leftover space equally (1fr). Wraps by itself on small screens. */
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--space-2);
+}
+
+.card {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+
+.card-label {
+  color: var(--color-stone);
+  font-weight: 500;
+}
+
+.card-value {
+  font-family: var(--font-heading);
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: var(--space-1);
+}
+
+/* Amber text on white is hard to read, so "low" is ink text with an amber bar */
+.card-value-low {
+  display: inline-block;
+  border-bottom: 4px solid var(--color-amber);
+}
+
+.card-value-out {
+  color: var(--color-red);
+}
+
+/* ==========================================================
+   8. TOOLBAR, FORM CONTROLS AND BUTTONS
+   ========================================================== */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;           /* items drop to a new line if there's no room */
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.toolbar-search {
+  flex: 1 1 14rem;           /* grow, shrink, start at 14rem: takes the spare space */
+}
+
+.toolbar-field:not(.toolbar-search) {
+  flex: 0 1 12rem;
+}
+
+input[type="text"],
+input[type="search"],
+input[type="number"],
+input[type="url"],
+select {
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  background-color: var(--color-white);
+  color: var(--color-ink);
+}
+
+/* JS adds this class to an input that failed validation (issue #12) */
+.input-invalid {
+  border-color: var(--color-red);
+}
+
+/* Base button: shared by every button, variants below change the colors */
+.btn {
+  padding: var(--space-1) var(--space-2);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Amber button, ALWAYS dark text (white on amber is unreadable) */
+.btn-primary {
+  background-color: var(--color-amber);
+  color: var(--color-ink);
+}
+.btn-primary:hover {
+  background-color: var(--color-amber-dark);
+}
+
+.btn-secondary {
+  background-color: var(--color-white);
+  border-color: var(--color-line);
+  color: var(--color-ink);
+}
+.btn-secondary:hover {
+  border-color: var(--color-stone);
+}
+
+/* Red is for danger only: delete and errors */
+.btn-danger {
+  background-color: var(--color-red);
+  color: var(--color-white);
+}
+.btn-danger:hover {
+  background-color: var(--color-red-dark);
+}
+
+/* Smaller buttons for the table rows */
+.btn-small {
+  padding: calc(var(--space-1) / 2) var(--space-1);
+  font-size: 0.875rem;
+}
+
+/* Edit: ink text with an amber border (amber text would fail contrast) */
+.btn-outline {
+  background-color: var(--color-white);
+  border-color: var(--color-amber);
+  color: var(--color-ink);
+}
+.btn-outline:hover {
+  background-color: var(--color-amber-tint);
+}
+
+/* Delete in a row: red outline so the table isn't a wall of solid red */
+.btn-danger-outline {
+  background-color: var(--color-white);
+  border-color: var(--color-red);
+  color: var(--color-red);
+}
+.btn-danger-outline:hover {
+  background-color: var(--color-red-tint);
+}
+
+/* ==========================================================
+   9. PRODUCT TABLE
+   ========================================================== */
+
+.table-wrapper {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  overflow-x: auto;     /* if the table is too wide, scroll inside the box, not the page */
+}
+
+.product-table {
+  width: 100%;
+  min-width: 48rem;
+  border-collapse: collapse;   /* merges neighbouring borders into one line */
+}
+
+.product-table th,
+.product-table td {
+  padding: var(--space-2);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.product-table thead th {
+  background-color: var(--color-paper);
+  color: var(--color-stone);
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.product-table tbody tr {
+  border-bottom: 1px solid var(--color-line);
+}
+.product-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* ----- Stock health rows (JS adds .row-low / .row-out in issue #8) -----
+   The coloured stripe is an inset box-shadow on the first cell. */
+.row-low {
+  background-color: var(--color-amber-tint);
+}
+.row-low td:first-child {
+  box-shadow: inset 6px 0 0 var(--color-amber);
+}
+
+.row-out {
+  background-color: var(--color-red-tint);
+}
+.row-out td:first-child {
+  box-shadow: inset 6px 0 0 var(--color-red);
+}
+
+/* ----- Status badges: always TEXT too, so colour isn't the only signal ----- */
+.badge {
+  display: inline-block;
+  padding: calc(var(--space-1) / 4) var(--space-1);
+  border-radius: 999px;      /* huge radius = pill shape */
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.badge-ok {
+  background-color: var(--color-line);
+  color: var(--color-ink);
+}
+.badge-low {
+  background-color: var(--color-amber);
+  color: var(--color-ink);
+}
+.badge-out {
+  background-color: var(--color-red);
+  color: var(--color-white);
+}
+
+/* ----- Quantity control:  [-]  40  [+] ----- */
+.qty-control {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.qty-value {
+  min-width: 2rem;
+  text-align: center;
+  font-weight: 700;
+}
+.btn-qty {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  background-color: var(--color-white);
+  color: var(--color-ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-qty:hover {
+  border-color: var(--color-ink);
+}
+
+/* ----- Thumbnail (the grey box shows when a product has no image) ----- */
+.thumb {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+.thumb-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-line);
+  color: var(--color-stone);
+}
+
+.row-actions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+/* ==========================================================
+   10. LOADING / ERROR / EMPTY STATES
+   ========================================================== */
+
+.state {
+  display: flex;
+  flex-direction: column;     /* stack message above button */
+  align-items: center;
+  gap: var(--space-2);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  padding: var(--space-4) var(--space-2);
+  text-align: center;
+}
+
+.state-error {
+  background-color: var(--color-red-tint);
+  border-color: var(--color-red);
+}
+
+/* A spinner drawn with pure CSS: a ring with one coloured side, rotating */
+#loading-state::before {
+  content: "";
+  width: 2rem;
+  height: 2rem;
+  border: 4px solid var(--color-line);
+  border-top-color: var(--color-amber);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Respect users who ask their device to reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  #loading-state::before {
+    animation: none;
+  }
+}
+
+/* ==========================================================
+   11. DIALOGS
+   no "display" set on dialog: the browser uses it to show/hide it.
+   ========================================================== */
+
+dialog {
+  width: min(30rem, 92vw);    /* 30rem wide, but never wider than 92% of the screen */
+  padding: var(--space-3);
+  background-color: var(--color-white);
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+}
+
+/* ::backdrop is the dimmed layer behind a modal dialog */
+dialog::backdrop {
+  background-color: var(--color-overlay);
+}
+
+dialog h2 {
+  font-size: 1.25rem;
+  margin-bottom: var(--space-2);
+}
+
+.form-field {
+  margin-bottom: var(--space-2);
+}
+
+.form-field label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: calc(var(--space-1) / 2);
+}
+
+.field-error {
+  color: var(--color-red);
+  font-size: 0.875rem;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+}
+
+/* ==========================================================
+   12. FOOTER
+   ========================================================== */
+
+.site-footer {
+  padding: var(--space-3) var(--space-2);
+  text-align: center;
+  font-size: 0.875rem;
 }
