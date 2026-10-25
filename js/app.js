@@ -5,6 +5,7 @@
 // app.js decides WHEN each happens. It does not know HOW either works.
 
 import { getProducts } from "./api.js";
+import { calculateSummary } from "./inventory.js";
 import { showLoading, showError, showEmpty, renderProducts } from "./ui.js";
 
 // ---------- State ----------
@@ -12,6 +13,18 @@ import { showLoading, showError, showEmpty, renderProducts } from "./ui.js";
 // (search, filters, add, edit, delete) reads from and updates this array.
 let products = [];
 
+// Redraws everything that depends on the products array.
+// (add, edit, delete, quantity buttons) just change the array
+// and call this one function, so the table and the cards can never disagree.
+function refreshView() {
+  renderSummary(calculateSummary(products));
+
+  if (products.length === 0) {
+    showEmpty();
+  } else {
+    renderProducts(products);
+  }
+}
 // ---------- Load products from the server ----------
 async function loadProducts() {
   showLoading();
@@ -21,12 +34,7 @@ async function loadProducts() {
   // when the server is down or answers with 404/500), JS jumps to "catch".
   try {
     products = await getProducts();
-
-    if (products.length === 0) {
-      showEmpty();
-    } else {
-      renderProducts(products);
-    }
+    refreshView();
   } catch (error) {
     showError(error.message);
   }

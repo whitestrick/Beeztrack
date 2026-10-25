@@ -11,6 +11,11 @@ const errorMessage = document.querySelector("#error-message");
 const emptyState = document.querySelector("#empty-state");
 const tableWrapper = document.querySelector("#table-wrapper");
 const tableBody = document.querySelector("#product-table-body");
+// card selectors rendered early like the elements above
+const totalProductsEl = document.querySelector("#total-products");
+const inventoryValueEl = document.querySelector("#inventory-value");
+const lowStockCountEl = document.querySelector("#low-stock-count");
+const outStockCountEl = document.querySelector("#out-stock-count");
 
 // The logic (inventory.js) decides the status;
 // this table decides the label and CSS classes used to display it.
@@ -66,7 +71,11 @@ function createCell(content) {
 }
 
 function formatPrice(price) {
-  return `$${Number(price).toFixed(2)}`;
+  // toLocaleString adds separators and keeps exactly 2 decimals
+  return `$${Number(price).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 }
 
 // -cell by cell-
@@ -162,4 +171,12 @@ export function renderProducts(products) {
   tableBody.replaceChildren(...rows);
 
   showOnly(tableWrapper);
+}
+
+// Fills in the four cards. It receives the numbers, it does not calculate them.
+export function renderSummary(summary) {
+  totalProductsEl.textContent = summary.totalProducts;
+  inventoryValueEl.textContent = formatPrice(summary.totalValue);
+  lowStockCountEl.textContent = summary.lowCount;
+  outStockCountEl.textContent = summary.outCount;
 }

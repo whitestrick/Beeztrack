@@ -14,3 +14,29 @@ export function getStockStatus(product) {
   if (quantity <= minStock) return "low";
   return "ok";
 }
+// Works out the numbers for the four summary cards from a list of products.
+// pure function: array in, object out, nothing else touched.
+export function calculateSummary(products) {
+  // reduce() walks through the array and builds up ONE value.
+  // "total" is the running sum, it starts at 0 ( second argument).
+  // For each product we add price x quantity to it.
+  const totalValue = products.reduce((total, product) => {
+    return total + Number(product.price) * Number(product.quantity);
+  }, 0);
+
+  // Count how many products have each status, using the function from #8
+  let lowCount = 0;
+  let outCount = 0;
+  products.forEach((product) => {
+    const status = getStockStatus(product);
+    if (status === "low") lowCount++;
+    if (status === "out") outCount++;
+  });
+
+  return {
+    totalProducts: products.length,
+    totalValue,
+    lowCount,
+    outCount,
+  };
+}
