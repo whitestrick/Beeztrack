@@ -5,7 +5,7 @@
 // app.js decides WHEN each happens. It does not know HOW either works.
 
 import { getProducts, addProduct, updateProduct, patchProduct, deleteProduct} from "./api.js";
-import { calculateSummary } from "./inventory.js";
+import { calculateSummary, filterProducts } from "./inventory.js";
 import { validateProduct, isValid } from "./validation.js";
 import {
   showLoading,
@@ -23,24 +23,39 @@ import {
   updateCategoryList,
   readProductId,
   focusRowButton,
+  showNoResults,
+  setSearchText,
 } from "./ui.js";
 
 // ---------- State ----------
 // The app's data lives here. Every feature we added
 // (search, filters, add, edit, delete) reads from and updates this array.
 let products = [];
+// What the user is currently searching/filtering for.
+// "" means "no filter". 
+let filters = { search: "", category: "", status: "" };
 
 // Redraws everything that depends on the products array.
 // (add, edit, delete, quantity buttons) just change the array
 // and call this one function, so the table and the cards can never disagree.
 function refreshView() {
+  // Cards and category suggestions describe ALL products
   renderSummary(calculateSummary(products));
   updateCategoryList(products);
 
   if (products.length === 0) {
+    // You really have nothing
     showEmpty();
+    return;
+  }
+
+  // The table shows only the products that pass the filters
+  const visibleProducts = filterProducts(products, filters);
+
+  if (visibleProducts.length === 0) {
+    showNoResults();
   } else {
-    renderProducts(products);
+    renderProducts(visibleProducts);
   }
 }
 // ---------- Load products from the server ----------
@@ -141,6 +156,11 @@ function init() {
   document.querySelector("#delete-dialog").addEventListener("close", () => {
     pendingDeleteId = null;
   });
+
+    // "input" fires on every keystroke (typing, pasting, clicking the x)
+  document.querySelector("#search-input").addEventListener("input", handleSearchInput);
+  document.querySelector("#clear-filters-btn").addEventListener("click", handleClearFilters);
+
   loadProducts();
 }
 
@@ -237,6 +257,17 @@ function handleTableClick(event) {
     pendingDeleteId = product.id;   // remember WHICH product
     openDeleteDialog(product);      // ...then ask the user
   }
+}
+
+function handleSearchInput(event) {
+  filters.search = event.target.value;
+  refreshView();
+}
+
+function handleClearFilters() {
+  filters = { search: "", category: "", status: "" };
+  setSearchText("");
+  refreshView();
 }
 
 init();
