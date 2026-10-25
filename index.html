@@ -199,8 +199,15 @@
 
         <div class="form-field">
           <label for="product-image">Image URL (optional)</label>
-          <input type="url" id="product-image" name="image" placeholder="https://..." />
-        </div>
+          <input
+            type="url"
+            id="product-image"
+            name="image"
+            placeholder="https://..."
+            aria-describedby="image-error"
+          />
+          <p class="field-error" id="image-error"></p>
+      </div>
 
         <div class="dialog-actions">
           <button type="button" id="product-cancel-btn" class="btn btn-secondary">Cancel</button>

@@ -19,6 +19,24 @@ const outStockCountEl = document.querySelector("#out-stock-count");
 
 const messageArea = document.querySelector("#message-area");
 
+const productDialog = document.querySelector("#product-dialog");
+const productForm = document.querySelector("#product-form");
+const productDialogTitle = document.querySelector("#product-dialog-title");
+const productIdInput = document.querySelector("#product-id");
+const productSaveBtn = document.querySelector("#product-save-btn");
+const categoryList = document.querySelector("#category-list");
+
+// Links each field name from validation.js to its input and its error <p>.
+// The ORDER here is the order the form is read and focused in.
+const FORM_FIELDS = {
+  name: { input: "#product-name", error: "#name-error" },
+  category: { input: "#product-category", error: "#category-error" },
+  price: { input: "#product-price", error: "#price-error" },
+  quantity: { input: "#product-quantity", error: "#quantity-error" },
+  minStock: { input: "#product-min-stock", error: "#min-stock-error" },
+  image: { input: "#product-image", error: "#image-error" },
+};
+
 // The logic (inventory.js) decides the status;
 // this table decides the label and CSS classes used to display it.
 const STATUS_DISPLAY = {
@@ -57,6 +75,8 @@ let messageTimer = null;
 
 // type is "success" or "error". Success vanishes after 4 seconds, errors
 // stay 6 seconds because they usually need more reading time.
+
+
 export function showMessage(text, type = "success") {
   // Only two types exist in our CSS, so anything else becomes an error
   const safeType = type === "success" ? "success" : "error";
@@ -78,9 +98,83 @@ export function showMessage(text, type = "success") {
   }, duration);
 }
 
+// - product dialog -
+
+// Reads every field and returns the RAW strings the user typed.
+// Cleaning and converting happens in app.js, checking happens in validation.js.
+export function readProductForm() {
+  const values = {};
+  for (const [field, selectors] of Object.entries(FORM_FIELDS)) {
+    values[field] = document.querySelector(selectors.input).value;
+  }
+  return values;
+}
+
+// Removes every error message and red border
+export function clearFieldErrors() {
+  for (const selectors of Object.values(FORM_FIELDS)) {
+    const input = document.querySelector(selectors.input);
+    input.classList.remove("input-invalid");
+    input.removeAttribute("aria-invalid");
+    document.querySelector(selectors.error).textContent = "";
+  }
+}
+
+// errors looks like { price: "Price is required." }  (from validation.js)
+export function showFieldErrors(errors) {
+  let firstInvalidInput = null;
+
+  for (const [field, selectors] of Object.entries(FORM_FIELDS)) {
+    if (!errors[field]) continue; // this field is fine, skip it
+
+    const input = document.querySelector(selectors.input);
+    input.classList.add("input-invalid");
+    input.setAttribute("aria-invalid", "true");
+    document.querySelector(selectors.error).textContent = errors[field];
+
+    if (!firstInvalidInput) firstInvalidInput = input;
+  }
+
+  // Put the cursor in the first bad field so the user can fix it right away
+  if (firstInvalidInput) firstInvalidInput.focus();
+}
+
+export function openProductDialog() {
+  productForm.reset();            // empties every input
+  clearFieldErrors();             // forget errors from last time
+  productIdInput.value = "";      // empty id = we are ADDING (edit fills it in)
+  productDialogTitle.textContent = "Add Product";
+  productDialog.showModal();      // opens it with the dimmed backdrop
+}
+
+export function closeProductDialog() {
+  productDialog.close();
+}
+
+// Disables the Save button while we wait for the server
+export function setSaving(isSaving) {
+  productSaveBtn.disabled = isSaving;
+  productSaveBtn.textContent = isSaving ? "Saving..." : "Save Product";
+}
+
+// Fills the category suggestions with the categories that already exist
+export function updateCategoryList(products) {
+  const categories = [...new Set(products.map((product) => product.category))].sort();
+
+  const options = categories.map((category) => {
+    const option = document.createElement("option");
+    option.value = category;
+    return option;
+  });
+
+  categoryList.replaceChildren(...options);
+}
+
 // Makes an element, optionally with a class and some text.
 // textContent treats the text as PLAIN TEXT, never as HTML.for security If someone
 // names a product "<script>...</script>" it just shows as words.
+
+
 function createElement(tag, className, text) {
   const element = document.createElement(tag);
   if (className) element.className = className;
