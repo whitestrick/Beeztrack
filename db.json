@@ -23,7 +23,7 @@
       "name": "Wireless Mouse",
       "category": "Accessories",
       "price": 25,
-      "quantity": 0,
+      "quantity": 3,
       "minStock": 3,
       "image": ""
     },
@@ -41,14 +41,18 @@
       "name": "Notebook Pack",
       "category": "Office",
       "price": 8.5,
-      "quantity": 5,
+      "quantity": 3,
       "minStock": 5,
       "image": ""
     },
     {
-      "name": "Renamed Item",
+      "name": "test Item",
       "id": 6,
-      "quantity": 9
+      "quantity": 9,
+      "category": "Office",
+      "price": 8.5,
+      "minStock": 5,
+      "image": ""
     }
   ]
 }

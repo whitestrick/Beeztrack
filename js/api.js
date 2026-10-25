@@ -63,3 +63,13 @@ export function updateProduct(id, product) {
     body: JSON.stringify(product),
   });
 }
+
+// PATCH /products/:id  ->  changes ONLY the fields you send.
+// Everything else in the record stays exactly as it was.
+// PUT,above , however replaces the whole record.
+export function patchProduct(id, changes) {
+  return request(`/products/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(changes),
+  });
+}
