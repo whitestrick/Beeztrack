@@ -35,6 +35,8 @@ const searchInput = document.querySelector("#search-input");
 
 const categoryFilter = document.querySelector("#category-filter");
 
+const statusFilter = document.querySelector("#status-filter");
+
 // Links each field name from validation.js to its input and its error <p>.
 // The ORDER here is the order the form is read and focused in.
 const FORM_FIELDS = {
@@ -84,6 +86,13 @@ export function showNoResults() {
 // Puts text back into the search box (used by "Clear filters")
 export function setSearchText(text) {
   searchInput.value = text;
+}
+
+// Puts a value back into the status dropdown ("", "ok", "low" or "out").
+// The category dropdown is rebuilt on every redraw, but this one is static HTML,
+// so we have to set it ourselves (used by "Clear filters" and at startup).
+export function setStatusFilter(value) {
+  statusFilter.value = value;
 }
 
 // --Feedback messages --

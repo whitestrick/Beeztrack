@@ -29,7 +29,8 @@ import {
   openDeleteDialog,   //  opens the "are you sure?" dialog
   closeDeleteDialog,  //  closes it (used by Cancel and after deleting)
   setDeleting,        //  disables the Delete button while waiting
-  focusAddButton,  
+  focusAddButton,
+  setStatusFilter,  
 } from "./ui.js";
 
 // ---------- State ----------
@@ -177,7 +178,15 @@ function init() {
   
     // "change" fires when the user picks a different option
   document.querySelector("#category-filter").addEventListener("change", handleCategoryChange);
+    // "change" fires when the user picks a different option in a <select>
+  document.querySelector("#status-filter").addEventListener("change", handleStatusChange);
 
+  // Browsers can remember form values after a reload. Make the screen
+  // match our state (filters), which always starts empty.
+  setSearchText(filters.search);
+  setStatusFilter(filters.status);
+
+  
   loadProducts();
 }
 
@@ -286,9 +295,17 @@ function handleCategoryChange(event) {
   refreshView();
 }
 
+// Runs when the user picks a stock status in the dropdown.
+// event.target.value is "", "ok", "low" or "out".
+function handleStatusChange(event) {
+  filters.status = event.target.value;
+  refreshView();
+}
+
 function handleClearFilters() {
   filters = { search: "", category: "", status: "" };
   setSearchText("");
+  setStatusFilter(""); //the static dropdown does not reset itself
   refreshView();
 }
 
