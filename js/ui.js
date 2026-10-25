@@ -100,7 +100,7 @@ function createCell(content) {
 }
 
 function formatPrice(price) {
-  // toLocaleString adds separators and keeps exactly 2 decimals
+  // toLocaleString adds separators and keeps exactly 2 decimals by converting my no into a string
   return `$${Number(price).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,

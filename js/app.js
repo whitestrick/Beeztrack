@@ -6,7 +6,7 @@
 
 import { getProducts } from "./api.js";
 import { calculateSummary } from "./inventory.js";
-import { showLoading, showError, showEmpty, renderProducts } from "./ui.js";
+import { showLoading, showError, showEmpty, renderProducts, renderSummary } from "./ui.js";
 
 // ---------- State ----------
 // The app's data lives here. Every feature we added
