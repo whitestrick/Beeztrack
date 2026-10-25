@@ -5,7 +5,7 @@
 // app.js decides WHEN each happens. It does not know HOW either works.
 
 import { getProducts, addProduct, updateProduct, patchProduct, deleteProduct} from "./api.js";
-import { calculateSummary, filterProducts } from "./inventory.js";
+import { calculateSummary, filterProducts, getCategories } from "./inventory.js";
 import { validateProduct, isValid } from "./validation.js";
 import {
   showLoading,
@@ -21,10 +21,15 @@ import {
   closeProductDialog,
   setSaving,
   updateCategoryList,
+  updateCategoryFilter,
   readProductId,
   focusRowButton,
   showNoResults,
   setSearchText,
+  openDeleteDialog,   //  opens the "are you sure?" dialog
+  closeDeleteDialog,  //  closes it (used by Cancel and after deleting)
+  setDeleting,        //  disables the Delete button while waiting
+  focusAddButton,  
 } from "./ui.js";
 
 // ---------- State ----------
@@ -43,13 +48,22 @@ function refreshView() {
   renderSummary(calculateSummary(products));
   updateCategoryList(products);
 
+  // ----- Category dropdown -----
+  const categories = getCategories(products);
+
+  // If the selected category no longer exists (its last product was deleted
+  // or renamed), drop the filter. Otherwise the table would show nothing
+  // and the user would not know why.
+  if (filters.category !== "" && !categories.includes(filters.category)) {
+    filters.category = "";
+  }
+  updateCategoryFilter(categories, filters.category);
+
   if (products.length === 0) {
-    // You really have nothing
     showEmpty();
     return;
   }
 
-  // The table shows only the products that pass the filters
   const visibleProducts = filterProducts(products, filters);
 
   if (visibleProducts.length === 0) {
@@ -160,6 +174,9 @@ function init() {
     // "input" fires on every keystroke (typing, pasting, clicking the x)
   document.querySelector("#search-input").addEventListener("input", handleSearchInput);
   document.querySelector("#clear-filters-btn").addEventListener("click", handleClearFilters);
+  
+    // "change" fires when the user picks a different option
+  document.querySelector("#category-filter").addEventListener("change", handleCategoryChange);
 
   loadProducts();
 }
@@ -261,6 +278,11 @@ function handleTableClick(event) {
 
 function handleSearchInput(event) {
   filters.search = event.target.value;
+  refreshView();
+}
+
+function handleCategoryChange(event) {
+  filters.category = event.target.value;
   refreshView();
 }
 

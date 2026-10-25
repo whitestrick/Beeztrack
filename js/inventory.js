@@ -60,3 +60,11 @@ export function filterProducts(products, filters) {
     return matchesSearch && matchesCategory && matchesStatus;
   });
 }
+
+// Returns the list of distinct categories in the products, sorted A to Z.
+// Pure function, so it is easy to test.
+export function getCategories(products) {
+  // A Set keeps each value once, so ten "Office" products give one "Office"
+  const unique = new Set(products.map((product) => product.category));
+  return [...unique].sort();
+}

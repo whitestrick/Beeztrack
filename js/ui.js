@@ -33,6 +33,8 @@ const deleteConfirmBtn = document.querySelector("#delete-confirm-btn");
 const noResultsState = document.querySelector("#no-results-state");
 const searchInput = document.querySelector("#search-input");
 
+const categoryFilter = document.querySelector("#category-filter");
+
 // Links each field name from validation.js to its input and its error <p>.
 // The ORDER here is the order the form is read and focused in.
 const FORM_FIELDS = {
@@ -56,7 +58,7 @@ const STATUS_DISPLAY = {
 // Only ONE of the four areas (loading / error / empty / table) is visible.
 // For each area, "hidden" becomes true unless it is the one we want.
 function showOnly(areaToShow) {
-  const allAreas = [loadingState, errorState, emptyState,noResultsState, tableWrapper];
+  const allAreas = [loadingState, errorState, emptyState, noResultsState, tableWrapper];
   allAreas.forEach((area) => {
     area.hidden = area !== areaToShow;
   });
@@ -202,6 +204,26 @@ export function updateCategoryList(products) {
   });
 
   categoryList.replaceChildren(...options);
+}
+
+// Rebuilds the category dropdown from the categories that exist right now.
+// "selected" is the category currently being filtered ("" = all), so the
+// dropdown keeps showing the user's choice after every redraw.
+export function updateCategoryFilter(categories, selected) {
+  // The first option always means "no category filter"
+  const allOption = document.createElement("option");
+  allOption.value = "";
+  allOption.textContent = "All categories";
+
+  const options = categories.map((category) => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;   // textContent: safe even with odd characters
+    return option;
+  });
+
+  categoryFilter.replaceChildren(allOption, ...options);
+  categoryFilter.value = selected;   // re-select what the user had chosen
 }
 
 // ---------- The delete dialog ----------
