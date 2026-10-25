@@ -73,3 +73,10 @@ export function patchProduct(id, changes) {
     body: JSON.stringify(changes),
   });
 }
+
+// DELETE /products/:id  ->  removes the record from db.json.
+// There is no body to send. json-server replies with an empty object {},
+// so request()'s response.json() still works.
+export function deleteProduct(id) {
+  return request(`/products/${id}`, { method: "DELETE" });
+}

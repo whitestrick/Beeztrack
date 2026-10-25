@@ -26,6 +26,10 @@ const productIdInput = document.querySelector("#product-id");
 const productSaveBtn = document.querySelector("#product-save-btn");
 const categoryList = document.querySelector("#category-list");
 
+const deleteDialog = document.querySelector("#delete-dialog");
+const deleteProductName = document.querySelector("#delete-product-name");
+const deleteConfirmBtn = document.querySelector("#delete-confirm-btn");
+
 // Links each field name from validation.js to its input and its error <p>.
 // The ORDER here is the order the form is read and focused in.
 const FORM_FIELDS = {
@@ -185,6 +189,30 @@ export function updateCategoryList(products) {
   });
 
   categoryList.replaceChildren(...options);
+}
+
+// ---------- The delete dialog ----------
+
+// Shows the dialog and puts the product's name in the question.
+// textContent, not innerHTML: a product called "<b>x</b>" shows as plain text.
+export function openDeleteDialog(product) {
+  deleteProductName.textContent = product.name;
+  deleteDialog.showModal();
+}
+
+export function closeDeleteDialog() {
+  deleteDialog.close();
+}
+
+// Disables the Delete button while we wait for the server (no double clicks)
+export function setDeleting(isDeleting) {
+  deleteConfirmBtn.disabled = isDeleting;
+  deleteConfirmBtn.textContent = isDeleting ? "Deleting..." : "Delete";
+}
+
+// After a delete the row that had focus is gone, so we send focus somewhere sensible
+export function focusAddButton() {
+  document.querySelector("#add-product-btn").focus();
 }
 
 // Makes an element, optionally with a class and some text.
