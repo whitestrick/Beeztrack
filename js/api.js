@@ -53,3 +53,13 @@ export function addProduct(product) {
     body: JSON.stringify(product), // JS object -> JSON text for the request body
   });
 }
+
+// PUT /products/:id  ->  REPLACES the whole record.
+// Any field you leave out is DELETED (tested using curlin issue#3).
+// That is why the edit form always sends every field.
+export function updateProduct(id, product) {
+  return request(`/products/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(product),
+  });
+}

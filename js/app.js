@@ -4,7 +4,7 @@
 //   ui.js  -> shows data
 // app.js decides WHEN each happens. It does not know HOW either works.
 
-import { getProducts, addProduct } from "./api.js";
+import { getProducts, addProduct, updateProduct } from "./api.js";
 import { calculateSummary } from "./inventory.js";
 import { validateProduct, isValid } from "./validation.js";
 import {
@@ -21,6 +21,7 @@ import {
   closeProductDialog,
   setSaving,
   updateCategoryList,
+  readProductId,
 } from "./ui.js";
 
 // ---------- State ----------
@@ -71,13 +72,9 @@ function buildProductFromForm(values) {
 }
 
 async function handleProductSubmit(event) {
-  // Stop the browser's default form behaviour (reloading the page)
   event.preventDefault();
 
-  // 1. Read what the user typed
   const values = readProductForm();
-
-  // 2. Check it. If anything is wrong, show the messages and STOP here.
   const errors = validateProduct(values);
   clearFieldErrors();
   if (!isValid(errors)) {
@@ -85,20 +82,34 @@ async function handleProductSubmit(event) {
     return;
   }
 
-  // 3. Send it to the server
+  const productData = buildProductFromForm(values);
+  const editingId = readProductId(); // "" = adding, anything else = editing
+
   setSaving(true);
   try {
-    const created = await addProduct(buildProductFromForm(values));
+    if (editingId) {
+      // ----- EDIT: PUT the whole record -----
+      const updated = await updateProduct(editingId, productData);
 
-    // Use the object the SERVER sent back: it has the new id
-    products.push(created);
+      // Swap the old object for the server's new one, keep all the others.
+      // String() on both sides: ids from the HTML are strings, ids from
+      // the server are numbers, and "1" === 1 is false in JavaScript.
+      products = products.map((product) =>
+        String(product.id) === String(editingId) ? updated : product
+      );
+      showMessage("Product updated");
+    } else {
+      // ----- ADD: POST (same as #13) -----
+      const created = await addProduct(productData);
+      products.push(created);
+      showMessage("Product saved");
+    }
+
     refreshView();
     closeProductDialog();
-    showMessage("Product saved");
   } catch (error) {
     showMessage(error.message, "error");
   } finally {
-    // finally runs whether it worked or failed
     setSaving(false);
   }
 }
@@ -119,6 +130,31 @@ function init() {
   document.querySelector("#product-cancel-btn").addEventListener("click", closeProductDialog);
   document.querySelector("#product-form").addEventListener("submit", handleProductSubmit);
   loadProducts();
+}
+
+// ---------- Clicks inside the table ----------
+// EVENT DELEGATION: instead of adding a listener to every button in every row
+// (and redoing it each time the table is redrawn), we add ONE listener to the
+// table body. Clicks "bubble up" from the button to it.
+
+function handleTableClick(event) {
+  // closest() walks UP from what was clicked until it finds a matching element.
+  // If the user clicked the text inside a button, it still finds the button.
+  const button = event.target.closest("button[data-action]");
+  if (!button) return; // the click was not on one of our buttons
+
+  const row = button.closest("tr");
+  const id = row.dataset.id; // the data-id we set in ui.js (a STRING)
+  const action = button.dataset.action;
+
+  // Find the product in our array that matches this row
+  const product = products.find((item) => String(item.id) === id);
+  if (!product) return;
+
+  if (action === "edit") {
+    openProductDialog(product);
+  }
+  // "decrease" and "increase" are added in #14, "delete" in #15
 }
 
 init();
