@@ -4,7 +4,7 @@
 //   ui.js  -> shows data
 // app.js decides WHEN each happens. It does not know HOW either works.
 
-import { getProducts, addProduct, updateProduct, patchProduct} from "./api.js";
+import { getProducts, addProduct, updateProduct, patchProduct, deleteProduct} from "./api.js";
 import { calculateSummary } from "./inventory.js";
 import { validateProduct, isValid } from "./validation.js";
 import {
@@ -134,6 +134,13 @@ function init() {
   document
     .querySelector("#product-table-body")
     .addEventListener("click", handleTableClick);
+
+      // Delete dialog: confirm, cancel, and reset when it closes (Escape included)
+  document.querySelector("#delete-confirm-btn").addEventListener("click", handleDeleteConfirm);
+  document.querySelector("#delete-cancel-btn").addEventListener("click", closeDeleteDialog);
+  document.querySelector("#delete-dialog").addEventListener("close", () => {
+    pendingDeleteId = null;
+  });
   loadProducts();
 }
 
@@ -178,6 +185,33 @@ async function changeQuantity(product, change, action) {
   }
 }
 
+// ---------- Deleting ----------
+// Which product the open dialog is about. null = no dialog open.
+// We store the ID here instead of reading it back from the page, because
+// the app's data is the truth, not the screen.
+let pendingDeleteId = null;
+
+async function handleDeleteConfirm() {
+  if (pendingDeleteId === null) return;
+  const id = pendingDeleteId; // copy it: the dialog's close event will reset the variable
+
+  setDeleting(true);
+  try {
+    await deleteProduct(id);
+
+    // filter keeps every product EXCEPT the deleted one
+    products = products.filter((product) => String(product.id) !== String(id));
+    refreshView(); // also shows the empty state if nothing is left
+    showMessage("Product deleted");
+  } catch (error) {
+    showMessage(error.message, "error");
+  } finally {
+    setDeleting(false);
+    closeDeleteDialog(); // closes on success AND on failure so the message is visible
+    focusAddButton();
+  }
+}
+
 function handleTableClick(event) {
   // closest() walks UP from what was clicked until it finds a matching element.
   // If the user clicked the text inside a button, it still finds the button.
@@ -193,14 +227,16 @@ function handleTableClick(event) {
   if (!product) return;
 
   
-  if (action === "edit") {
+    if (action === "edit") {
     openProductDialog(product);
   } else if (action === "increase") {
     changeQuantity(product, 1, action);
   } else if (action === "decrease") {
     changeQuantity(product, -1, action);
+  } else if (action === "delete") {
+    pendingDeleteId = product.id;   // remember WHICH product
+    openDeleteDialog(product);      // ...then ask the user
   }
-  // "delete" is added in #15
 }
 
 init();
