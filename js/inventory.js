@@ -68,3 +68,47 @@ export function getCategories(products) {
   const unique = new Set(products.map((product) => product.category));
   return [...unique].sort();
 }
+
+// Our products need a minimum stock level, but DummyJSON has no such field.
+// So every imported product gets this default.
+export const DEFAULT_MIN_STOCK = 5;
+
+// "home-decoration" -> "Home decoration" (matches how we write our own categories)
+function formatCategory(text) {
+  const withSpaces = String(text).replace(/-/g, " ");
+  return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1);
+}
+
+// Converts ONE DummyJSON product into a Beeztrack product.
+// title -> name, stock -> quantity, thumbnail -> image.
+// "|| 0" and "|| ''" are safety nets: if a value is missing we use a default
+// instead of sending NaN or undefined to the server.
+export function mapSampleProduct(sample) {
+  return {
+    name: String(sample.title).trim(),
+    category: formatCategory(sample.category),
+    price: Number(sample.price) || 0,
+    quantity: Number(sample.stock) || 0,
+    minStock: DEFAULT_MIN_STOCK,
+    image: sample.thumbnail || "",
+  };
+}
+
+// Returns only the candidates that are NOT already in the inventory.
+// Two products count as the same if their names match (ignoring case/spaces).
+// It also removes duplicates INSIDE the candidates list itself.
+export function findNewProducts(candidates, existingProducts) {
+  // A Set is perfect here: "is this name already known?" is instant
+  const knownNames = new Set(
+    existingProducts.map((product) => product.name.trim().toLowerCase())
+  );
+
+  const newProducts = [];
+  for (const candidate of candidates) {
+    const key = candidate.name.toLowerCase();
+    if (knownNames.has(key)) continue; // already in the inventory, skip it
+    knownNames.add(key);               // remember it so a repeat in the list is skipped too
+    newProducts.push(candidate);
+  }
+  return newProducts;
+}

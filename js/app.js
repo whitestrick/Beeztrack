@@ -4,8 +4,8 @@
 //   ui.js  -> shows data
 // app.js decides WHEN each happens. It does not know HOW either works.
 
-import { getProducts, addProduct, updateProduct, patchProduct, deleteProduct} from "./api.js";
-import { calculateSummary, filterProducts, getCategories } from "./inventory.js";
+import { getProducts, addProduct, updateProduct, patchProduct, deleteProduct, getSampleProducts} from "./api.js";
+import { calculateSummary, filterProducts, getCategories, mapSampleProduct, findNewProducts } from "./inventory.js";
 import { validateProduct, isValid } from "./validation.js";
 import {
   showLoading,
@@ -30,7 +30,8 @@ import {
   closeDeleteDialog,  //  closes it (used by Cancel and after deleting)
   setDeleting,        //  disables the Delete button while waiting
   focusAddButton,
-  setStatusFilter,  
+  setStatusFilter, 
+  setImporting, 
 } from "./ui.js";
 
 // ---------- State ----------
@@ -180,6 +181,9 @@ function init() {
   document.querySelector("#category-filter").addEventListener("change", handleCategoryChange);
     // "change" fires when the user picks a different option in a <select>
   document.querySelector("#status-filter").addEventListener("change", handleStatusChange);
+  
+    // Clicking "Import sample products" runs the whole import pipeline
+  document.querySelector("#import-btn").addEventListener("click", handleImport);
 
   // Browsers can remember form values after a reload. Make the screen
   // match our state (filters), which always starts empty.
@@ -282,6 +286,42 @@ function handleTableClick(event) {
   } else if (action === "delete") {
     pendingDeleteId = product.id;   // remember WHICH product
     openDeleteDialog(product);      // ...then ask the user
+  }
+}
+
+// ---------- Importing sample products ----------
+async function handleImport() {
+  setImporting(true);
+  let added = 0; // declared OUTSIDE try so the catch block can report progress
+
+  try {
+    // 1. Get the raw sample data and convert it to our format
+    const samples = await getSampleProducts();
+    const candidates = samples.map(mapSampleProduct);
+
+    // 2. Keep only the products we don't already have
+    const newProducts = findNewProducts(candidates, products);
+    if (newProducts.length === 0) {
+      showMessage("All sample products are already in your inventory.");
+      return;
+    }
+
+    // 3. POST them ONE AT A TIME. "await" inside a for...of loop waits for
+    //    each request to finish before starting the next one (simple and safe).
+    for (const product of newProducts) {
+      const created = await addProduct(product);
+      products.push(created);
+      added++;
+    }
+
+    showMessage(`Imported ${added} sample ${added === 1 ? "product" : "products"}`);
+  } catch (error) {
+    showMessage(`Import failed after ${added} products: ${error.message}`, "error");
+  } finally {
+    // Runs on success AND on failure: redraw (some products may have been
+    // added before an error) and give the button back.
+    refreshView();
+    setImporting(false);
   }
 }
 

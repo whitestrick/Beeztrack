@@ -37,6 +37,8 @@ const categoryFilter = document.querySelector("#category-filter");
 
 const statusFilter = document.querySelector("#status-filter");
 
+const importBtn = document.querySelector("#import-btn");
+
 // Links each field name from validation.js to its input and its error <p>.
 // The ORDER here is the order the form is read and focused in.
 const FORM_FIELDS = {
@@ -200,6 +202,13 @@ export function closeProductDialog() {
 export function setSaving(isSaving) {
   productSaveBtn.disabled = isSaving;
   productSaveBtn.textContent = isSaving ? "Saving..." : "Save Product";
+}
+
+// Disables the Import button while the import runs, so a double click
+// cannot start the import twice.
+export function setImporting(isImporting) {
+  importBtn.disabled = isImporting;
+  importBtn.textContent = isImporting ? "Importing..." : "Import sample products";
 }
 
 // Fills the category suggestions with the categories that already exist
