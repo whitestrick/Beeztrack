@@ -3,7 +3,7 @@
 // No other file  calls fetch() on our backend. Components ask this
 // module for data and never worry about URLs or headers.
 
-import { API_BASE_URL } from "./config.js";
+import { API_BASE_URL, DUMMYJSON_URL } from "./config.js";
 
 // Every API function below goes through request(), so fetching,
 // converting to JSON and error handling are written only ONCE.
@@ -79,4 +79,25 @@ export function patchProduct(id, changes) {
 // so request()'s response.json() still works.
 export function deleteProduct(id) {
   return request(`/products/${id}`, { method: "DELETE" });
+}
+
+// Gets the sample products from the PUBLIC DummyJSON API (not our json-server).
+// We use fetch directly here because our internal request() function adds
+// API_BASE_URL in front of the path, and this is a different website.
+export async function getSampleProducts() {
+  let response;
+  try {
+    response = await fetch(DUMMYJSON_URL);
+  } catch (error) {
+    // fetch only throws when the request never got an answer (offline, blocked)
+    throw new Error("Could not reach the sample products service. Check your internet connection.");
+  }
+
+  // fetch does NOT throw on 404 or 500, so we check response.ok ourselves
+  if (!response.ok) {
+    throw new Error(`Sample products request failed (${response.status}).`);
+  }
+
+  const data = await response.json();
+  return data.products; // DummyJSON wraps the list inside a "products" field
 }
