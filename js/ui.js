@@ -139,12 +139,29 @@ export function showFieldErrors(errors) {
   if (firstInvalidInput) firstInvalidInput.focus();
 }
 
-export function openProductDialog() {
-  productForm.reset();            // empties every input
-  clearFieldErrors();             // forget errors from last time
-  productIdInput.value = "";      // empty id = we are ADDING (edit fills it in)
-  productDialogTitle.textContent = "Add Product";
-  productDialog.showModal();      // opens it with the dimmed backdrop
+// product is OPTIONAL.
+//   openProductDialog()          -> empty form, "Add Product"
+//   openProductDialog(someProduct) -> filled form, "Edit Product"
+export function openProductDialog(product) {
+  productForm.reset();
+  clearFieldErrors();
+
+  if (product) {
+    // EDIT mode: put the product's values into the inputs
+    productIdInput.value = product.id;
+    productDialogTitle.textContent = "Edit Product";
+
+    for (const field of Object.keys(FORM_FIELDS)) {
+      // ?? "" means: if the value is missing, use an empty string
+      document.querySelector(FORM_FIELDS[field].input).value = product[field] ?? "";
+    }
+  } else {
+    // ADD mode
+    productIdInput.value = "";
+    productDialogTitle.textContent = "Add Product";
+  }
+
+  productDialog.showModal();
 }
 
 export function closeProductDialog() {
@@ -302,4 +319,9 @@ export function renderSummary(summary) {
   inventoryValueEl.textContent = formatPrice(summary.totalValue);
   lowStockCountEl.textContent = summary.lowCount;
   outStockCountEl.textContent = summary.outCount;
+}
+
+// Returns the id of the product being edited, or "" when adding
+export function readProductId() {
+  return productIdInput.value;
 }
