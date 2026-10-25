@@ -17,6 +17,8 @@ const inventoryValueEl = document.querySelector("#inventory-value");
 const lowStockCountEl = document.querySelector("#low-stock-count");
 const outStockCountEl = document.querySelector("#out-stock-count");
 
+const messageArea = document.querySelector("#message-area");
+
 // The logic (inventory.js) decides the status;
 // this table decides the label and CSS classes used to display it.
 const STATUS_DISPLAY = {
@@ -47,10 +49,37 @@ export function showError(message) {
 export function showEmpty() {
   showOnly(emptyState);
 }
+// --Feedback messages --
+// The id of the "hide it later" timer. It lives OUTSIDE the function so the
+// next call can find it and cancel it. Otherwise an old timer could remove
+// a NEW message too early.
+let messageTimer = null;
 
+// type is "success" or "error". Success vanishes after 4 seconds, errors
+// stay 6 seconds because they usually need more reading time.
+export function showMessage(text, type = "success") {
+  // Only two types exist in our CSS, so anything else becomes an error
+  const safeType = type === "success" ? "success" : "error";
+
+  // Cancel the previous message's timer, if there is one
+  clearTimeout(messageTimer);
+
+  // Build <p class="message message-success">text</p>.
+  // createElement uses textContent, so the text can never inject HTML.
+  const message = createElement("p", `message message-${safeType}`, text);
+
+  // replaceChildren: the new message REPLACES the old one,
+  // so messages never pile up.
+  messageArea.replaceChildren(message);
+
+  const duration = safeType === "success" ? 4000 : 6000;
+  messageTimer = setTimeout(() => {
+    messageArea.replaceChildren(); // no arguments = empty the area
+  }, duration);
+}
 
 // Makes an element, optionally with a class and some text.
-// textContent treats the text as PLAIN TEXT, never as HTML. If someone
+// textContent treats the text as PLAIN TEXT, never as HTML.for security If someone
 // names a product "<script>...</script>" it just shows as words.
 function createElement(tag, className, text) {
   const element = document.createElement(tag);
