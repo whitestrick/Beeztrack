@@ -44,5 +44,12 @@ export function getProducts() {
   return request("/products");
 }
 
-// addProduct (POST), updateProduct (PUT), patchProduct (PATCH) and
-// deleteProduct (DELETE) are added in later issues.
+// POST /products  ->  creates a product and returns it WITH its new id.
+// The server (json-server) is the one that invents the id, so we never have to
+// make one up ourselves.
+export function addProduct(product) {
+  return request("/products", {
+    method: "POST",
+    body: JSON.stringify(product), // JS object -> JSON text for the request body
+  });
+}
