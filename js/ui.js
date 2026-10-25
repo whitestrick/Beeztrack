@@ -30,6 +30,9 @@ const deleteDialog = document.querySelector("#delete-dialog");
 const deleteProductName = document.querySelector("#delete-product-name");
 const deleteConfirmBtn = document.querySelector("#delete-confirm-btn");
 
+const noResultsState = document.querySelector("#no-results-state");
+const searchInput = document.querySelector("#search-input");
+
 // Links each field name from validation.js to its input and its error <p>.
 // The ORDER here is the order the form is read and focused in.
 const FORM_FIELDS = {
@@ -53,7 +56,7 @@ const STATUS_DISPLAY = {
 // Only ONE of the four areas (loading / error / empty / table) is visible.
 // For each area, "hidden" becomes true unless it is the one we want.
 function showOnly(areaToShow) {
-  const allAreas = [loadingState, errorState, emptyState, tableWrapper];
+  const allAreas = [loadingState, errorState, emptyState,noResultsState, tableWrapper];
   allAreas.forEach((area) => {
     area.hidden = area !== areaToShow;
   });
@@ -71,6 +74,16 @@ export function showError(message) {
 export function showEmpty() {
   showOnly(emptyState);
 }
+
+export function showNoResults() {
+  showOnly(noResultsState);
+}
+
+// Puts text back into the search box (used by "Clear filters")
+export function setSearchText(text) {
+  searchInput.value = text;
+}
+
 // --Feedback messages --
 // The id of the "hide it later" timer. It lives OUTSIDE the function so the
 // next call can find it and cancel it. Otherwise an old timer could remove

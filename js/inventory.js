@@ -40,3 +40,23 @@ export function calculateSummary(products) {
     outCount,
   };
 }
+
+// Returns only the products that match ALL the active filters.
+// filters = { search: "usb", category: "", status: "" }
+// An empty string means "don't filter on this". later only have to connect the dropdowns.
+// Pure function: it never changes the original array, it returns a new one.
+export function filterProducts(products, filters) {
+  const search = String(filters.search ?? "").trim().toLowerCase();
+  const category = filters.category ?? "";
+  const status = filters.status ?? "";
+
+  return products.filter((product) => {
+    // includes() asks "does this text contain that text?"
+    const matchesSearch = String(product.name).toLowerCase().includes(search);
+    const matchesCategory = category === "" || product.category === category;
+    const matchesStatus = status === "" || getStockStatus(product) === status;
+
+    // A product stays only if it passes all three tests
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+}
