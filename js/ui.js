@@ -239,6 +239,7 @@ function createQuantityCell(product) {
   const minus = createElement("button", "btn-qty", "\u2212"); // the minus sign
   minus.type = "button";
   minus.dataset.action = "decrease";
+    minus.disabled = Number(product.quantity) <= 0; // nothing left to remove
   minus.setAttribute("aria-label", `Decrease quantity of ${product.name}`);
 
   const value = createElement("span", "qty-value", product.quantity);
@@ -311,6 +312,15 @@ export function renderProducts(products) {
   tableBody.replaceChildren(...rows);
 
   showOnly(tableWrapper);
+}
+
+// After a redraw, put keyboard focus back on the same kind of button in the
+// same row, so someone using the keyboard can keep pressing + or -.
+export function focusRowButton(id, action) {
+  const button = tableBody.querySelector(
+    `tr[data-id="${id}"] button[data-action="${action}"]:not(:disabled)`
+  );
+  if (button) button.focus();
 }
 
 // Fills in the four cards. It receives the numbers, it does not calculate them.

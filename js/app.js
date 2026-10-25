@@ -4,7 +4,7 @@
 //   ui.js  -> shows data
 // app.js decides WHEN each happens. It does not know HOW either works.
 
-import { getProducts, addProduct, updateProduct } from "./api.js";
+import { getProducts, addProduct, updateProduct, patchProduct} from "./api.js";
 import { calculateSummary } from "./inventory.js";
 import { validateProduct, isValid } from "./validation.js";
 import {
@@ -22,6 +22,7 @@ import {
   setSaving,
   updateCategoryList,
   readProductId,
+  focusRowButton,
 } from "./ui.js";
 
 // ---------- State ----------
@@ -129,6 +130,10 @@ function init() {
   // Cancel, and the form's submit
   document.querySelector("#product-cancel-btn").addEventListener("click", closeProductDialog);
   document.querySelector("#product-form").addEventListener("submit", handleProductSubmit);
+    // ONE listener on the table body handles edit, +, - (and delete later)
+  document
+    .querySelector("#product-table-body")
+    .addEventListener("click", handleTableClick);
   loadProducts();
 }
 
@@ -136,6 +141,42 @@ function init() {
 // EVENT DELEGATION: instead of adding a listener to every button in every row
 // (and redoing it each time the table is redrawn), we add ONE listener to the
 // table body. Clicks "bubble up" from the button to it.
+
+// ids of products whose PATCH request is still in progress
+const busyIds = new Set();
+
+// change is +1 or -1. action is "increase" or "decrease" (used to restore focus).
+async function changeQuantity(product, change, action) {
+  const newQuantity = Number(product.quantity) + change;
+
+  // Rule: quantity can never be negative. The disabled button already blocks
+  // this in the UI, but the logic must not depend on the UI.
+  if (newQuantity < 0) {
+    showMessage("Quantity can't go below 0.", "error");
+    return;
+  }
+
+  // If this product already has a request in flight, ignore the click.
+  // Otherwise two fast clicks would both start from the OLD quantity.
+  if (busyIds.has(product.id)) return;
+  busyIds.add(product.id);
+
+  try {
+    // PATCH sends ONLY the field that changed
+    const updated = await patchProduct(product.id, { quantity: newQuantity });
+
+    // Swap in the server's version, then redraw table AND summary cards
+    products = products.map((item) =>
+      String(item.id) === String(updated.id) ? updated : item
+    );
+    refreshView();
+    focusRowButton(updated.id, action);
+  } catch (error) {
+    showMessage(error.message, "error");
+  } finally {
+    busyIds.delete(product.id); // always free the product, success or failure
+  }
+}
 
 function handleTableClick(event) {
   // closest() walks UP from what was clicked until it finds a matching element.
@@ -151,10 +192,15 @@ function handleTableClick(event) {
   const product = products.find((item) => String(item.id) === id);
   if (!product) return;
 
+  
   if (action === "edit") {
     openProductDialog(product);
+  } else if (action === "increase") {
+    changeQuantity(product, 1, action);
+  } else if (action === "decrease") {
+    changeQuantity(product, -1, action);
   }
-  // "decrease" and "increase" are added in #14, "delete" in #15
+  // "delete" is added in #15
 }
 
 init();

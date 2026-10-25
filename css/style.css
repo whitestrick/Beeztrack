@@ -454,6 +454,14 @@ select {
   border-color: var(--color-ink);
 }
 
+.btn-qty:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-qty:disabled:hover {
+  border-color: var(--color-line); /* no hover highlight on a disabled button */
+}
+
 /* ----- Thumbnail (the grey box shows when a product has no image) ----- */
 .thumb {
   width: 3rem;
