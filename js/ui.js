@@ -1,6 +1,6 @@
+import { getStockStatus } from "./inventory.js";
 
 // the DOM lives in this file.
-
 
 // - Find the elements before to inc speed -
 // Looking elements up is slow-ish, so iprefer to do it once at the top
@@ -11,6 +11,14 @@ const errorMessage = document.querySelector("#error-message");
 const emptyState = document.querySelector("#empty-state");
 const tableWrapper = document.querySelector("#table-wrapper");
 const tableBody = document.querySelector("#product-table-body");
+
+// The logic (inventory.js) decides the status;
+// this table decides the label and CSS classes used to display it.
+const STATUS_DISPLAY = {
+  ok: { label: "OK", rowClass: "", badgeClass: "badge-ok" },
+  low: { label: "Low", rowClass: "row-low", badgeClass: "badge-low" },
+  out: { label: "Out", rowClass: "row-out", badgeClass: "badge-out" },
+};
 
 // ---------- Showing one area at a time ----------
 // Only ONE of the four areas (loading / error / empty / table) is visible.
@@ -95,6 +103,12 @@ function createQuantityCell(product) {
   return createCell(wrapper);
 }
 
+function createStatusCell(status) {
+  const display = STATUS_DISPLAY[status];
+  const badge = createElement("span", `badge ${display.badgeClass}`, display.label);
+  return createCell(badge);
+}
+
 function createActionsCell(product) {
   const wrapper = createElement("div", "row-actions");
 
@@ -116,9 +130,15 @@ function createActionsCell(product) {
 function createProductRow(product) {
   const row = document.createElement("tr");
 
-  // data-id stores the product's id on the row.the  (edit, delete,
+  // data-id stores the product's id on the row.(edit, delete,
   // quantity buttons) read it to know WHICH product was clicked.
   row.dataset.id = product.id;
+
+  // Ask inventory.js for the status, then add the matching row class.
+  // "ok" rows get no class at all, so classList.add is skipped for them.
+  const status = getStockStatus(product);
+  const { rowClass } = STATUS_DISPLAY[status];
+  if (rowClass) row.classList.add(rowClass);
 
   row.append(
     createImageCell(product),
@@ -127,7 +147,7 @@ function createProductRow(product) {
     createCell(formatPrice(product.price)),
     createQuantityCell(product),
     createCell(product.minStock),
-    createCell("\u2014"), // a dash for now. ***remember to sortout
+    createStatusCell(status), // replaces the dash placeholder from #7
     createActionsCell(product)
   );
 
