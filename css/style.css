@@ -120,7 +120,28 @@ h3 {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+/* Skip link: parked above the screen, slides into view only when it gets
+   keyboard focus. Keyboard users can jump straight to the content. */
+.skip-link {
+  position: absolute;
+  left: var(--space-2);
+  top: -4rem;
+  z-index: 10;
+  padding: var(--space-1) var(--space-2);
+  background-color: var(--color-amber);
+  color: var(--color-ink);
+  font-weight: 700;
+  border-radius: var(--radius);
+}
+.skip-link:focus {
+  top: var(--space-1);
+}
 
+.form-note {
+  color: var(--color-stone);
+  font-size: 0.875rem;
+  margin-bottom: var(--space-2);
+}
 /* ==========================================================
    5. LAYOUT
    ========================================================== */
@@ -350,7 +371,8 @@ select {
   color: var(--color-red);
 }
 .btn-danger-outline:hover {
-  background-color: var(--color-red-tint);
+  background-color: var(--color-red);
+  color: var(--color-white);
 }
 
 /* ==========================================================
