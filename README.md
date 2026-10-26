@@ -91,7 +91,7 @@ the DummyJSON public API.
 | Logic | JavaScript (ES modules, async/await, fetch) |
 | Backend | JSON Server 0.17.4 (mock REST API) |
 | Public API | [DummyJSON Products](https://dummyjson.com/products) |
-| Testing | Vitest <ADD jsdom or coverage provider if used (check)> |
+| Testing | Vitest  |
 | Hosting | GitHub Pages (frontend), Render (API) |
 | Design | Figma, Google Fonts (Bricolage Grotesque, DM Sans) |
 | Workflow | Git, GitHub Issues, GitHub Projects board, pull requests |
@@ -197,18 +197,16 @@ delegation).
 
 ## Testing
 
-Tests run with Vitest. <N> tests pass.
+Tests run with Vitest. 87 tests pass.
 
 ![Coverage report](docs/coverage.png)
 
-**Coverage:** <STATEMENTS>% statements, <BRANCHES>% branches,
-<FUNCTIONS>% functions, <LINES>% lines.
+**Coverage:** 100% statements, 100% branches,
+100% functions, 100% lines.
 
-**Scope:** <EXPLAIN HONESTLY WHAT IS MEASURED. For example: "Coverage is
-measured on the logic modules (`validation.js`, `inventory.js`, `api.js`),
-which hold the application rules and can be tested without a browser. `ui.js`
-and `app.js` manipulate the DOM and are verified manually."> (check against
-your real coverage configuration)
+**Scope:** - The automated tests measure the **logic layer**: `inventory.js`, `validation.js`, `api.js` and `config.js`. Current coverage: **[__]%** of lines. A minimum of 50% is enforced automatically by `vitest.config.mjs`.
+- `app.js` and `ui.js` handle the page itself (buttons, table, dialogs). They cannot run in plain Node, so they are **excluded from the percentage** and were checked manually with a test table for every feature.
+- Screenshot of the coverage report: `docs/coverage.png`.
 
 ## Accessibility
 
@@ -239,7 +237,7 @@ queries.
 - **Fonts:** Bricolage Grotesque for headings and DM Sans for body text.
 - **Categories are free text** with suggestions, so any kind of business can
   use its own categories.
-- **Figma wireframe:** <FIGMA LINK>
+- **Figma wireframe:** Figma link at the top
 
 ## Deployment
 
