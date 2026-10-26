@@ -6,7 +6,7 @@ and see the total value of your stock at a glance.
 
 **Live app:** <https://whitestrick.github.io/Beeztrack/>
 **Live API:** <https://beeztrack-api.onrender.com/products>
-**Figma wireframe:** <FIGMA LINK, added in the Figma issue>
+**Figma wireframe:** https://www.figma.com/design/2sIVhio32peULwaJBM5CSo/Beeztrack-figma-des?node-id=1-490&t=ZrO9Y30Qdj20fIT4-1
 
 > **Heads up:** the API runs on a free hosting tier that sleeps after 15
 > minutes of inactivity. The first load can take up to a minute while the
