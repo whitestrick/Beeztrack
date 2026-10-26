@@ -220,6 +220,7 @@ your real coverage configuration)
 - Respects `prefers-reduced-motion`
 
 **Lighthouse accessibility score:** 
+
 ## Responsive design
 
 Desktop shows a table. On tablet the toolbar wraps, and on mobile each product
