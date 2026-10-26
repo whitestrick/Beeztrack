@@ -280,9 +280,14 @@ function createElement(tag, className, text) {
   return element;
 }
 
-// Makes a <td> which holding either plain text or an element built
-function createCell(content) {
+
+// Makes a <td> which holding either plain text or an element built.
+// label (optional) is saved in a data-label attribute. On small screens the
+// CSS shows it in front of the value ("Price  $12.00"), so each card line
+// explains itself even though the table header row is hidden.
+function createCell(content, label) {
   const cell = document.createElement("td");
+  if (label) cell.dataset.label = label;
   if (content instanceof Node) {
     cell.appendChild(content);
   } else {
@@ -331,13 +336,13 @@ function createQuantityCell(product) {
   plus.setAttribute("aria-label", `Increase quantity of ${product.name}`);
 
   wrapper.append(minus, value, plus);
-  return createCell(wrapper);
+  return createCell(wrapper, "Quantity");
 }
 
 function createStatusCell(status) {
   const display = STATUS_DISPLAY[status];
   const badge = createElement("span", `badge ${display.badgeClass}`, display.label);
-  return createCell(badge);
+  return createCell(badge, "Status");
 }
 
 function createActionsCell(product) {
@@ -371,13 +376,13 @@ function createProductRow(product) {
   const { rowClass } = STATUS_DISPLAY[status];
   if (rowClass) row.classList.add(rowClass);
 
-  row.append(
+    row.append(
     createImageCell(product),
-    createCell(product.name),
-    createCell(product.category),
-    createCell(formatPrice(product.price)),
+    createCell(product.name, "Name"),
+    createCell(product.category, "Category"),
+    createCell(formatPrice(product.price), "Price"),
     createQuantityCell(product),
-    createCell(product.minStock),
+    createCell(product.minStock, "Min stock"),
     createStatusCell(status), // replaces the dash placeholder from #7
     createActionsCell(product)
   );
