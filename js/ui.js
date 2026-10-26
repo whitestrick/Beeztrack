@@ -39,6 +39,8 @@ const statusFilter = document.querySelector("#status-filter");
 
 const importBtn = document.querySelector("#import-btn");
 
+const liveStatus = document.querySelector("#live-status");
+
 // Links each field name from validation.js to its input and its error <p>.
 // The ORDER here is the order the form is read and focused in.
 const FORM_FIELDS = {
@@ -126,6 +128,12 @@ export function showMessage(text, type = "success") {
   messageTimer = setTimeout(() => {
     messageArea.replaceChildren(); // no arguments = empty the area
   }, duration);
+}
+
+// Puts text into the invisible live region. A screen reader reads it out
+// as soon as it is free ("polite"). Sighted users see nothing.
+export function announce(text) {
+  liveStatus.textContent = text;
 }
 
 // - product dialog -

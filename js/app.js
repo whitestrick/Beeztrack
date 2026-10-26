@@ -31,7 +31,8 @@ import {
   setDeleting,        //  disables the Delete button while waiting
   focusAddButton,
   setStatusFilter, 
-  setImporting, 
+  setImporting,
+  announce, 
 } from "./ui.js";
 
 // ---------- State ----------
@@ -62,11 +63,13 @@ function refreshView() {
   updateCategoryFilter(categories, filters.category);
 
   if (products.length === 0) {
+    announce("No products in your inventory.");
     showEmpty();
     return;
   }
 
   const visibleProducts = filterProducts(products, filters);
+  announce(`Showing ${visibleProducts.length} of ${products.length} products`);
 
   if (visibleProducts.length === 0) {
     showNoResults();
@@ -139,6 +142,16 @@ async function handleProductSubmit(event) {
 
     refreshView();
     closeProductDialog();
+
+    // The table was redrawn, so the browser can no longer give focus back to
+    // the button that opened the dialog (it does not exist any more).
+    // We put focus somewhere sensible ourselves.
+    if (editingId) {
+      focusRowButton(editingId, "edit"); // the same product's Edit button
+    } else {
+      focusAddButton();
+    }
+
   } catch (error) {
     showMessage(error.message, "error");
   } finally {
@@ -228,6 +241,7 @@ async function changeQuantity(product, change, action) {
     );
     refreshView();
     focusRowButton(updated.id, action);
+    announce(`${updated.name}: quantity is now ${updated.quantity}`);
   } catch (error) {
     showMessage(error.message, "error");
   } finally {
