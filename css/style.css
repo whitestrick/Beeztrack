@@ -583,3 +583,139 @@ dialog h2 {
   text-align: center;
   font-size: 0.875rem;
 }
+
+
+/* ==========================================================
+   13. RESPONSIVE: products as cards on small screens When two rules are equally
+   specific, the one written later wins, so these override the
+   desktop table rules above.
+   ========================================================== */
+
+@media (max-width: 700px) {
+  /* The top bar may need two lines: logo, then the import button */
+  .top-bar {
+    flex-wrap: wrap;
+  }
+
+  /* The white bordered box belonged to the TABLE. Each card will have its
+     own box, so the wrapper becomes invisible. */
+  .table-wrapper {
+    background-color: transparent;
+    border: none;
+    overflow: visible;
+  }
+
+  /* The table's minimum width (48rem) would force sideways scrolling */
+  .product-table {
+    min-width: 0;
+  }
+
+  /* Stop being a table: these parts become plain stacked blocks */
+  .product-table,
+  .product-table tbody,
+  .product-table tr {
+    display: block;
+  }
+
+  /* Hide the header row VISUALLY but keep it for screen readers.
+     (display: none would hide it from assistive technology too.) */
+  .product-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* ----- Every row becomes a card ----- */
+  .product-table tbody tr {
+    margin-bottom: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+  }
+  /* Desktop removes the last row's bottom border; every card keeps its own */
+  .product-table tbody tr:last-child {
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  /* Low and out cards: keep the tint and move the stripe to the card's edge */
+  .product-table tbody tr.row-low {
+    background-color: var(--color-amber-tint);
+    border-left: 6px solid var(--color-amber);
+  }
+  .product-table tbody tr.row-out {
+    background-color: var(--color-red-tint);
+    border-left: 6px solid var(--color-red);
+  }
+  /* On desktop the stripe is a shadow on the first cell (the image).
+     On a card that would look wrong */
+  .product-table tbody td:first-child {
+    box-shadow: none;
+  }
+
+  /* ----- Every cell becomes one line: label left, value right ----- */
+  .product-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) 0;
+    overflow-wrap: anywhere;   /* a very long name wraps instead of overflowing */
+  }
+
+  /* The label text comes from the data-label attribute set in ui.js */
+  .product-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--color-stone);
+  }
+
+  /* Cells without a data-label (image, actions) have no label to show */
+  .product-table td:not([data-label])::before {
+    display: none;
+  }
+  .product-table td:not([data-label]) {
+    justify-content: flex-start;
+  }
+
+  /* The name is the card's title, so it needs no label */
+  .product-table td[data-label="Name"] {
+    justify-content: flex-start;
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+  .product-table td[data-label="Name"]::before {
+    display: none;
+  }
+
+  /* Edit and Delete share the card's full width */
+  .row-actions {
+    width: 100%;
+  }
+  .row-actions .btn {
+    flex: 1;
+  }
+
+  /* ----- Toolbar: the two dropdowns share a row, Add Product is full width ----- */
+  .toolbar-field:not(.toolbar-search) {
+    flex: 1 1 8rem;
+  }
+  .toolbar .btn {
+    flex: 1 1 100%;
+  }
+
+  /* ----- Bigger touch targets (about 44px) ----- */
+  .btn,
+  .btn-qty,
+  .toolbar input,
+  .toolbar select {
+    min-height: 2.75rem;
+  }
+  .btn-qty {
+    min-width: 2.75rem;
+  }
+}
