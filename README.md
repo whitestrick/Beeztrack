@@ -204,7 +204,7 @@ Tests run with Vitest. 87 tests pass.
 **Coverage:** 100% statements, 100% branches,
 100% functions, 100% lines.
 
-**Scope:** - The automated tests measure the **logic layer**: `inventory.js`, `validation.js`, `api.js` and `config.js`. Current coverage: **[__]%** of lines. A minimum of 50% is enforced automatically by `vitest.config.mjs`.
+**Scope:** - The automated tests measure the **logic layer**: `inventory.js`, `validation.js`, `api.js` and `config.js`. Current coverage: **100%** of lines. A minimum of 50% is enforced automatically by `vitest.config.mjs`.
 - `app.js` and `ui.js` handle the page itself (buttons, table, dialogs). They cannot run in plain Node, so they are **excluded from the percentage** and were checked manually with a test table for every feature.
 - Screenshot of the coverage report: `docs/coverage.png`.
 
@@ -248,9 +248,9 @@ queries.
 
 The frontend finds the API through one constant in `js/config.js`.
 
-**Persistence test (<DATE>):** <WHAT YOU OBSERVED. For example: "I added a
+**Persistence test :** "I added a
 product on the live API, restarted the service from the Render dashboard, and
-the product was gone. The API returned to the seed data in `db.json`.">
+the product was gone. The API returned to the seed data in `db.json`."
 
 ## Known limitations
 
